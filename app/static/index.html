@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>束线控制文法 LR(1) 复核</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要内容</a>
+<header class="topbar">
+  <h1>束线控制文法 LR(1) 复核</h1>
+  <p class="subtitle">上线前复核移进/归约与归约/归约冲突</p>
+</header>
+
+<main id="main">
+  <section class="card" aria-labelledby="input-title">
+    <h2 id="input-title">文法输入</h2>
+    <div class="rules-note">
+      <strong>分隔规则：</strong>
+      终结符 / 非终结符列表以空白、逗号或分号分隔，支持多字符符号；
+      产生式每行一条，形如 <code>A -&gt; α</code>（也支持 →）；
+      空产生式右部留空或写 <code>ε</code>；递归照常书写；
+      保留符号 <code>$</code> 与 <code>S′</code> 不可声明。
+    </div>
+    <div class="grid">
+      <div class="field">
+        <label for="terminals">终结符</label>
+        <input id="terminals" name="terminals" type="text" autocomplete="off"
+               placeholder="例如：int float = * + ( ) ;">
+      </div>
+      <div class="field">
+        <label for="nonterminals">非终结符</label>
+        <input id="nonterminals" name="nonterminals" type="text" autocomplete="off"
+               placeholder="例如：S T D L">
+      </div>
+      <div class="field field-narrow">
+        <label for="start">起始符</label>
+        <input id="start" name="start" type="text" autocomplete="off" placeholder="S">
+      </div>
+    </div>
+    <div class="field">
+      <label for="productions">产生式（每行一条）</label>
+      <textarea id="productions" name="productions" rows="9" spellcheck="false"
+                placeholder="S -> T&#10;T -> int * float"></textarea>
+    </div>
+    <div class="actions">
+      <button id="btn-review" type="button" class="primary">发起复核</button>
+      <button id="btn-cancel" type="button" disabled>取消计算</button>
+      <button id="btn-sample-ok" type="button" class="ghost">填入无冲突样例</button>
+      <button id="btn-sample-conflict" type="button" class="ghost">填入冲突样例（悬空 else）</button>
+      <button id="btn-clear" type="button" class="ghost danger">清空</button>
+      <span id="draft-state" class="draft-state" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="result-title">
+    <h2 id="result-title">复核结论</h2>
+    <div id="status-banner" class="banner idle" role="status" aria-live="polite">
+      尚未复核。编辑文法后点击「发起复核」。草稿会自动保留在本浏览器。
+    </div>
+    <div id="stale-note" class="stale-note" hidden>草稿已修改或计算已取消：以下为过期结果，不代表当前结论。</div>
+
+    <div id="error-panel" hidden>
+      <h3>输入问题</h3>
+      <ul id="error-list" class="issue-list errors"></ul>
+    </div>
+    <div id="warning-panel" hidden>
+      <h3>提示（不阻断）</h3>
+      <ul id="warning-list" class="issue-list warnings"></ul>
+    </div>
+
+    <div id="conflict-panel" hidden>
+      <h3>首个冲突</h3>
+      <article id="conflict-card" class="conflict-card" tabindex="0"
+               aria-label="首个 LR(1) 冲突证据"></article>
+    </div>
+
+    <div id="analysis-panel" hidden>
+      <h3>nullable / FIRST</h3>
+      <div id="nullable-first" class="nullable-first"></div>
+
+      <h3>规范 LR(1) 项目集</h3>
+      <p class="hint">状态按 BFS 发现顺序稳定编号；I0 为初始状态，<code>·</code> 为点位置。</p>
+      <details>
+        <summary>展开全部项目集</summary>
+        <div id="states"></div>
+      </details>
+
+      <h3>LR(1) 动作表</h3>
+      <div class="table-wrap">
+        <table id="actionTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>健康路径：<a href="/healthz">/healthz</a> · 一次性验收服务：<code>verify</code></p>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

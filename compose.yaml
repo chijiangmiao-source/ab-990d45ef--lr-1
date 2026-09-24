@@ -1,0 +1,25 @@
+services:
+  web:
+    build: .
+    image: grammar-review:latest
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import json,urllib.request,sys; r=urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=2); sys.exit(0 if json.load(r).get('status')=='ok' else 1)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+    restart: unless-stopped
+
+  # 一次性验收服务：完成代码测试、页面构建检查、API/HTTP 冒烟后退出，
+  # 退出码即验收结果（0 通过 / 1 失败）。
+  # 运行：docker compose run --rm verify
+  verify:
+    build: .
+    image: grammar-review:latest
+    command: ["python3", "verify", "--base-url", "http://web:8080"]
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: "no"
